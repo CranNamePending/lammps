@@ -165,8 +165,9 @@ void PairSPHTaitwater::compute(int eflag, int vflag) {
             double Tj = e[j]/cv[j];
             nu[i] = 0.00183*exp(1879.9/Ti);
             nu[j] = 0.00183*exp(1879.9/Tj);
-            nuij = (nu[i] + nu[j])/2;
-            fvisc = - 8*(nuij)/(h*soundspeed[itype]) * (soundspeed[itype]+ soundspeed[jtype]) * mu / (rho[i] + rho[j]);
+            double alphai =  8* nu[i] /(h*soundspeed[itype]);
+            double alphaj =  8* nu[j] /(h*soundspeed[jtype])
+            fvisc = - ((alphai + alphaj)/2) * (soundspeed[itype]+ soundspeed[jtype]) * mu / (rho[i] + rho[j]);
         } else {
           fvisc = 0.;
         }
