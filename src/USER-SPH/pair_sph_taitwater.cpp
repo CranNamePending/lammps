@@ -65,7 +65,10 @@ void PairSPHTaitwater::compute(int eflag, int vflag) {
   double *rho = atom->rho;
   double *mass = atom->mass;
   double *de = atom->de;
+  double *e = atom->e;
   double *drho = atom->drho;
+  double *cv = atom->cv;
+  double *nu = atom->nu;
   int *type = atom->type;
   int nlocal = atom->nlocal;
   int newton_pair = force->newton_pair;
@@ -157,9 +160,10 @@ void PairSPHTaitwater::compute(int eflag, int vflag) {
 
         // artificial viscosity (Monaghan 1992)
         if (delVdotDelR < 0.) {
-          mu = h * delVdotDelR / (rsq + 0.01 * h * h);
-          fvisc = -viscosity[itype][jtype] * (soundspeed[itype]
-              + soundspeed[jtype]) * mu / (rho[i] + rho[j]);
+			mu = h * delVdotDelR / (rsq + 0.01 * h * h);
+            double T = e[i]/cv[i];
+            nu[i] = 8*(0.00183*exp(1879.9/T))/(h*soundspeed[itype]);
+            fvisc = -nu[i] * (soundspeed[itype]+ soundspeed[jtype]) * mu / (rho[i] + rho[j]);
         } else {
           fvisc = 0.;
         }
