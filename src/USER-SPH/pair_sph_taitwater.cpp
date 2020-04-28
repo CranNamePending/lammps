@@ -161,9 +161,12 @@ void PairSPHTaitwater::compute(int eflag, int vflag) {
         // artificial viscosity (Monaghan 1992)
         if (delVdotDelR < 0.) {
 			mu = h * delVdotDelR / (rsq + 0.01 * h * h);
-            double T = e[i]/cv[i];
-            nu[i] = 8*(0.00183*exp(1879.9/T))/(h*soundspeed[itype]);
-            fvisc = -nu[i] * (soundspeed[itype]+ soundspeed[jtype]) * mu / (rho[i] + rho[j]);
+            double Ti = e[i]/cv[i];
+            double Tj = e[j]/cv[j];
+            nu[i] = 0.00183*exp(1879.9/Ti);
+            nu[j] = 0.00183*exp(1879.9/Tj);
+            nuij = (nu[i] + nu[j])/2;
+            fvisc = - 8*(nuij)/(h*soundspeed[itype]) * (soundspeed[itype]+ soundspeed[jtype]) * mu / (rho[i] + rho[j]);
         } else {
           fvisc = 0.;
         }
