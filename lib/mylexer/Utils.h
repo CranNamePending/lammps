@@ -20,6 +20,11 @@ enum class Token : int {
 	empty = -5
 };
 
+std::ostream& operator << (std::ostream& os, const A& obj){
+	os << static_cast<std::underlying_type<A>::type>(obj);
+	return os;
+}
+
 // Tree-node sequence to structure
 // the functions and number-sequence
 struct TreeNode {

@@ -51,6 +51,10 @@
 #include "memory.h"
 #include "utils.h"
 
+#ifdef LMP_LEXER_IN_H
+#include "lexer_input.h"
+#endif
+
 #ifdef _WIN32
 #include <direct.h>
 #endif
@@ -850,15 +854,12 @@ int Input::execute_command()
   else if (!strcmp(command,"undump")) undump();
   else if (!strcmp(command,"unfix")) unfix();
   else if (!strcmp(command,"units")) units();
-
   else flag = 0;
 
   // return if command was listed above
-
   if (flag) return 0;
 
   // invoke commands added via style_command.h
-
   if (command_map->find(command) != command_map->end()) {
     CommandCreator command_creator = (*command_map)[command];
     command_creator(lmp,narg,arg);
@@ -866,7 +867,6 @@ int Input::execute_command()
   }
 
   // unrecognized command
-
   return -1;
 }
 

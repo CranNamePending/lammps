@@ -31,6 +31,9 @@ variable           etot equal c_esph+c_ke+f_gfix
 #                                     adjust nevery | min. allowed dt | max. allowed dt | max. travel distance per dt # // ${dt} ~= CFL criterion 0.1*h/c
 fix                dtfix all dt/reset 1               NULL              ${dt}             0.0005 units box # use a variable timestep
 
+# read command to lexer
+lexer_input        5+20/T
+
 # time-integrate position, velocities, internal energy and density of water particles
 fix                integrate_water_fix water meso
 

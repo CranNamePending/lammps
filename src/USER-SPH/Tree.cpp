@@ -2,9 +2,7 @@
 
 #include <math.h> 
 
-Tree::Tree(){
-	m_topOperator = std::make_shared<OperatorNode>(Token::empty);
-}
+Tree::Tree(): m_topOperator(std::make_shared<OperatorNode>(Token::empty)) {}
 
 Tree::Tree(Formula const& formula){
 	m_topOperator = std::make_shared<OperatorNode>(Token::empty);
@@ -19,27 +17,30 @@ Tree::Tree(Formula const& formula){
 	for (Token token : formula.tokens) {
 		switch(token){
 		case Token::num:{
-			Operand operand = { Operand::DOUBLE, formula.values[i] };
+			printf("Num\n");
+			Operand operand = { Operand::DOUBLE};
 			operand.value = formula.values[i];
 			operands.push(operand);
 			i++;
 			break;
 		}case Token::x:{
-			Operand operand = { Operand::CHAR, 'x' };
-			operands.push(operand);
-			break;
 		}case Token::t:{
-			Operand operand = { Operand::CHAR, 't' };
+			printf("x or t\n");
+			Operand operand = { Operand::ENUM, token };
 			operands.push(operand);
 			break;
 		}default:
+			printf("other value\n");
 			if (token == Token::rbrack || (!operators.empty() && token < previousOperator)) {
+				printf("Parsing\n");
 				emptyStack(token == Token::rbrack, operators, operands);
 				previousOperator = Token::lbrack;
 			}
 			if (token != Token::rbrack) {
 				operators.push_back(token);
 				previousOperator = token;
+			} else if (operators.size() > 1) {
+				previousOperator = *(operators.rbegin()+1);
 			}
 		}
 	}
@@ -62,12 +63,29 @@ void Tree::emptyStack(bool isRightBracket, vector<Token> &operators, stack<Opera
 
 		// Either attach the currently-created tree to the end of this, or create the next operand node
 		if (nextToken == Token::lbrack) {
+
+			// insert new tree into system
+			// Special case full brackets, or m_top 
+			// Simplification system
 			if (m_topOperator->getToken() == Token::empty) {
-				std::shared_ptr<Node> node = getNextOperandNode(operands.top());
+				if (operands.top().type == Operand::DOUBLE && currentTop->getRight()->getToken() == Token::num) {
+					double value = parseValuesFromToken(currentTop->getToken(), operands.top().value, (std::dynamic_pointer_cast<const NumNode>(currentTop->getRight()))->getValue());
+					currentTop = make_shared<NumNode>(value);
+				} else {
+					std::shared_ptr<Node> node = getNextOperandNode(operands.top());
+					currentTop->setLeft(node);
+				}
 				operands.pop();
-				currentTop->setLeft(node);
 			} else {
-				currentTop->setLeft(m_topOperator);
+				// Simplify, either set m_topOperator left of currentTop operator, or replace with the calculation of all
+				if (m_topOperator->getToken() == Token::num && currentTop->getRight()->getToken() == Token::num) {
+					double value = parseValuesFromToken(currentTop->getToken(),	// current operator tag
+						(std::dynamic_pointer_cast<const NumNode>(m_topOperator))->getValue(), // Left, current Top node
+						(std::dynamic_pointer_cast<const NumNode>(currentTop->getRight()))->getValue()); // right, next operand
+					currentTop = make_shared<NumNode>(value);
+				} else {
+					currentTop->setLeft(m_topOperator);
+				}
 			}
 			m_topOperator = currentTop;
 			if (isRightBracket) {
@@ -75,10 +93,33 @@ void Tree::emptyStack(bool isRightBracket, vector<Token> &operators, stack<Opera
 			}
 			break;
 		} else {
-			std::shared_ptr<Node> node = getNextOperandNode(operands.top());
+			// Simplification system
+			if (operands.top().type == Operand::DOUBLE && currentTop->getRight()->getToken() == Token::num) {
+				double value = parseValuesFromToken(currentTop->getToken(), operands.top().value, (std::dynamic_pointer_cast<const NumNode>(currentTop->getRight()))->getValue());
+				currentTop = make_shared<NumNode>(value);
+			} else {
+				std::shared_ptr<Node> node = getNextOperandNode(operands.top());
+				currentTop->setLeft(node);
+			}
 			operands.pop();
-			currentTop->setLeft(node);
 		}
+	}
+}
+
+double Tree::parseValuesFromToken(const Token token, const double &left, const double &right) {
+	switch (token) {
+	case Token::add:
+		return left + right;
+	case Token::sub:
+		return left - right;
+	case Token::mult:
+		return left * right;
+	case Token::div:
+		return left / right;
+	case Token::pow:
+		return pow(left, right);
+	default:
+		return 0;
 	}
 }
 
@@ -86,10 +127,8 @@ std::shared_ptr<Node> Tree::getNextOperandNode(Operand operand) {
 	if (operand.type == Operand::DOUBLE) {
 		return std::make_shared<NumNode>(operand.value);
 	} else {
-		if (operand.unknownValue == 'x') {
-			return std::make_shared<OperatorNode>(Token::x);
-		} else if (operand.unknownValue == 't') {
-			return std::make_shared<OperatorNode>(Token::t);
+		if (operand.unknownValue == Token::x || operand.unknownValue == Token::t) {
+			return std::make_shared<OperatorNode>(operand.unknownValue);
 		} else {
 			return std::make_shared<NumNode>(0);
 		}
@@ -101,28 +140,19 @@ double Tree::getOutput(double const& x, double const& t){
 }
 
 double Tree::parseBranch(std::shared_ptr<const Node> node, const double &x, const double &t) {
-	switch (node->getToken()) {
+	switch (node->getToken()) {	
 	case Token::num:
 		return (std::dynamic_pointer_cast<const NumNode>(node))->getValue();
 	case Token::x:
 		return x;
 	case Token::t:
 		return t;
+	case Token::empty:
+		return 0;
 	default:
 		double right = parseBranch(node->getRight(), x, t);
 		double left = parseBranch(node->getLeft(), x, t);
-		switch (node->getToken()) {
-		case Token::add:
-			return left + right;
-		case Token::sub:
-			return left - right;
-		case Token::mult:
-			return left * right;
-		case Token::div:
-			return left / right;
-		case Token::pow:
-			return pow(left, right);
-		}
+		return parseValuesFromToken(node->getToken(), left, right);
 	}
 	return 0;
 }

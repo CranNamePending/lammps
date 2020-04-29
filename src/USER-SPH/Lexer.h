@@ -9,7 +9,9 @@ using namespace std;
 // Tokenizer, interpret characters into one of these operators
 enum class Token : int {
 	// Arithmetic operators
-	add = 1, sub = 2, mult = 4, div = 3, pow = 10, log = 5, ln = 6, exp = 7,
+	add = 1, sub = 2, mult = 4, div = 3, pow = 10, 
+	// Do Not Work! Do not use!
+	log = 5, ln = 6, exp = 7,
 	// Seperators
 	lbrack = -99, rbrack = 99,
 	// Number tmp
@@ -20,19 +22,10 @@ enum class Token : int {
 	empty = -5
 };
 
-// Tree-node sequence to structure
-// the functions and number-sequence
-struct TreeNode {
-	Token token = Token::empty;
-	TreeNode* parent = NULL;
-	TreeNode* left = NULL;
-	TreeNode* right = NULL;
-};
-
 struct Operand {
-	enum { DOUBLE, CHAR } type;
+	enum { DOUBLE, ENUM } type;
 	union {
-		const char unknownValue;
+		Token unknownValue;
 		double value;
 	};
 };

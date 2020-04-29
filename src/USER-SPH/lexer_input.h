@@ -1,7 +1,7 @@
 
 #ifdef COMMAND_CLASS
 
-CommandStyle(create_atoms,LexerInput)
+CommandStyle(lexer_input,LexerInput)
 
 #else
 
