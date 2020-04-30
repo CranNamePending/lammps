@@ -21,6 +21,7 @@ PairStyle(sph/taitwater,PairSPHTaitwater)
 #define LMP_PAIR_TAITWATER_H
 
 #include "pair.h"
+#include "tree.h"
 
 namespace LAMMPS_NS {
 
@@ -37,6 +38,7 @@ class PairSPHTaitwater : public Pair {
   double *rho0, *soundspeed, *B;
   double **cut,**viscosity;
   int first;
+  Tree formula;
 
   void allocate();
 };

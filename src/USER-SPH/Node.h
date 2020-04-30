@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 
-#include "Lexer.h"
+#include "LexerUtils.h"
 
 class Node
 {

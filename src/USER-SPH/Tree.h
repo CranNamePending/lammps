@@ -3,7 +3,7 @@
 
 #include "NumNode.h"
 #include "OperatorNode.h"
-#include "Lexer.h"
+#include "LexerUtils.h"
 
 #pragma once
 class Tree {

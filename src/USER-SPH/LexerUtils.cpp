@@ -1,4 +1,4 @@
-#include "Lexer.h"
+#include "LexerUtils.h"
 
 Token parseCharacter(char x);
 
@@ -10,6 +10,7 @@ Formula tokenizer(string const& input){
 	multiChar.clear();
 
 	for (const char& c : input) {
+		printf("%s\n", &c);
 		// Parse double values, to ensure a whole number is collected
 		if ((c <= (int)57 && c >= 48) || c == 46) {
 			nextValue.push_back(c);
@@ -46,13 +47,26 @@ Formula tokenizer(string const& input){
 		}else {
 			// Store number, with Token informing interpretter to 
 			// grab values from Value system.
+			
 			if (!nextValue.empty()) {
 				tokens.push_back(Token::num);
 				double value = atof(nextValue.c_str());
 				nextValue.clear();
 				values.push_back(value);
 			}
+			
 			tokens.push_back(parseCharacter(c));
+			if(tokens.size() > 1){
+				Token top = tokens.back();
+				if(top == Token::lbrack || top == Token::rbrack || top == Token::t || top == Token::x){
+					continue;
+				}else{
+					Token ltop = tokens.rbegin()[1];
+					if(ltop != Token::t && ltop != Token::x && ltop != Token::num){
+						throw("Error!");
+					}
+				}
+			}
 		}
 	}
 	if (!nextValue.empty()) {

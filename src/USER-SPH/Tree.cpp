@@ -136,7 +136,7 @@ std::shared_ptr<Node> Tree::getNextOperandNode(Operand operand) {
 }
 
 double Tree::getOutput(double const& x, double const& t){
-	return parseBranch(m_topOperator, x, t);
+	return exp(parseBranch(m_topOperator, x, t));
 }
 
 double Tree::parseBranch(std::shared_ptr<const Node> node, const double &x, const double &t) {

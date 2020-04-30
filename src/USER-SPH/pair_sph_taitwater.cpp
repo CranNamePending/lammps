@@ -13,6 +13,7 @@
 
 #include "pair_sph_taitwater.h"
 #include <cmath>
+#include <string>
 #include "atom.h"
 #include "force.h"
 #include "comm.h"
@@ -20,6 +21,8 @@
 #include "memory.h"
 #include "error.h"
 #include "domain.h"
+
+#include "LexerUtils.h"
 
 using namespace LAMMPS_NS;
 
@@ -221,10 +224,41 @@ void PairSPHTaitwater::allocate() {
  global settings
  ------------------------------------------------------------------------- */
 
-void PairSPHTaitwater::settings(int narg, char **/*arg*/) {
-  if (narg != 0)
+void PairSPHTaitwater::settings(int narg, char **arg) {
+  string input = "(";
+  if(narg == 0){
+	  // Default formula inserted here
+	  input = "5+2";
+  }else{
+	// Given sph_taitwater has no commands of its own, all inputs will be assumed
+	// to be given to the lexer, thus all inputs concat into one string input.
+    for(int i = 0 ; i < narg ; i++){
+      string s(arg[i]);
+      input += s;
+    }
+  }
+  input += ")";
+  // Debug print 
+  printf("Input: %s\n", input.c_str());
+  Formula form;
+  try{
+    form = tokenizer(input);
+  }catch(char* c){
     error->all(FLERR,
-        "Illegal number of arguments for pair_style sph/taitwater");
+      "Illegal argument: Lexer detected two arithmetic symbols directly next to each other!");
+	  return;
+  }
+  for(Token token : form.tokens){
+    printf("Token: %d\n", (int)token);
+  }
+  
+  Tree t(form);
+  t.printTree();
+  formula = t;
+  printf("Output if T = 20: %f\n", t.getOutput(0, 20.0));
+//  if (narg != 0)
+//    error->all(FLERR,
+//        "Illegal number of arguments for pair_style sph/taitwater");
 }
 
 /* ----------------------------------------------------------------------
