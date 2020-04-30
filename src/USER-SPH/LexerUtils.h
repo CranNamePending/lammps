@@ -1,10 +1,36 @@
 #include <cctype>
+#include <exception>
 #include <iostream>
 #include <string>
 #include <vector>
 
 using namespace std;
 #pragma once
+
+// Exceptions
+struct unbalancedBracketsException : public std::exception{
+	const char * error () const throw ()   {
+    	return "Error: Brackets unbalanced!";
+    }
+};
+
+struct tooManyRightBracketException : public std::exception{
+	const char * error () const throw ()   {
+    	return "Error: too many right brackets!";
+    }
+};
+
+struct pairedOperatorOperandsException : public std::exception{
+	const char * error () const throw ()   {
+    	return "Format Error: Two operands or two operators found next to each other!";
+    }
+};
+
+struct noOperatorsException : public std::exception{
+	const char * error () const throw ()   {
+    	return "Format Error: No operators/operands!";
+    }
+};
 
 // Tokenizer, interpret characters into one of these operators
 enum class Token : int {

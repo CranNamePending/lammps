@@ -228,7 +228,7 @@ void PairSPHTaitwater::settings(int narg, char **arg) {
   string input = "(";
   if(narg == 0){
 	  // Default formula inserted here
-	  input = "5+2";
+	  input += "5+2";
   }else{
 	// Given sph_taitwater has no commands of its own, all inputs will be assumed
 	// to be given to the lexer, thus all inputs concat into one string input.
@@ -240,22 +240,36 @@ void PairSPHTaitwater::settings(int narg, char **arg) {
   input += ")";
   // Debug print 
   printf("Input: %s\n", input.c_str());
+  
+  // Tokenize input
   Formula form;
   try{
     form = tokenizer(input);
-  }catch(char* c){
-    error->all(FLERR,
-      "Illegal argument: Lexer detected two arithmetic symbols directly next to each other!");
-	  return;
+  }catch(unbalancedBracketsException& e){
+    error->all(FLERR, e.error());
+    return;
+  }catch(tooManyRightBracketException& e){
+    error->all(FLERR, e.error());
+    return;
+  }catch(pairedOperatorOperandsException& e){
+    error->all(FLERR, e.error());
+    return;
+  }catch(noOperatorsException& e){
+    error->all(FLERR, e.error());
+    return;
   }
+  
+  // Debug Print
   for(Token token : form.tokens){
     printf("Token: %d\n", (int)token);
   }
   
+  // Token to tree-formula.
   Tree t(form);
-  t.printTree();
   formula = t;
   printf("Output if T = 20: %f\n", t.getOutput(0, 20.0));
+  
+// OLD CODE
 //  if (narg != 0)
 //    error->all(FLERR,
 //        "Illegal number of arguments for pair_style sph/taitwater");
