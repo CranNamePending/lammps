@@ -36,6 +36,7 @@ class PairSPHIdealGas : public Pair {
 
  protected:
   double **cut,**viscosity;
+  double *rho0, *soundspeed;
 
   void allocate();
 };

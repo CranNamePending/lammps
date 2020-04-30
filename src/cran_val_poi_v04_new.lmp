@@ -47,14 +47,14 @@ mass               1 ${m}
 mass               2 ${m}
 mass               3 ${m}
 
-variable           Twall_cold equal 295 #without loss of generality and in Kelvin
-variable	   	   Twall equal 375 #in Kelvin
+variable           Twall_cold equal 278.15 #without loss of generality and in Kelvin
+variable	   	   Twall equal 368.15 #in Kelvin
 variable           Twater equal (${Twall_cold}+(${Twall}/2))/2
 
 
 variable 	   e_water equal ${Twater}*${Cv}*${m}
 variable  	   e_wall_cold  equal ${Twall_cold}*${Cv}*${m}
-variable	   e_wall_hot equal (${Twall_cold}+${Twall})*${Cv}*${m}
+variable	   e_wall_hot equal (${Twall})*${Cv}*${m}
 variable	   cv equal ${Cv}*${m}
 
 set 		   group water meso/e ${e_water}

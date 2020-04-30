@@ -60,7 +60,9 @@ void PairSPHIdealGas::compute(int eflag, int vflag) {
   double *mass = atom->mass;
   double *de = atom->de;
   double *e = atom->e;
-  double *drho = atom->drho;
+  double *nu = atom->nu;
+  double *cv = atom->cv;
+   double *drho = atom->drho;
   int *type = atom->type;
   int nlocal = atom->nlocal;
   int newton_pair = force->newton_pair;
@@ -129,7 +131,14 @@ void PairSPHIdealGas::compute(int eflag, int vflag) {
         if (delVdotDelR < 0.) {
           cj = sqrt(0.4*e[j]/jmass);
           mu = h * delVdotDelR / (rsq + 0.01 * h * h);
-          fvisc = -viscosity[itype][jtype] * (ci + cj) * mu / (rho[i] + rho[j]);
+
+          double Ti = e[i]/cv[i];
+          double Tj = e[j]/cv[j];
+          nu[i] = 0.00000183*exp(1879.9/Ti)/rho[i];
+          nu[j] = 0.00000183*exp(1879.9/Tj)/rho[j];
+          double alphai =  8* nu[i] /(h*soundspeed[itype]);
+          double alphaj =  8* nu[j] /(h*soundspeed[jtype]);
+          fvisc = 2 * ((alphai + alphaj) /2) / (rho[i] * rho[j]);
         } else {
           fvisc = 0.;
         }
@@ -185,6 +194,7 @@ void PairSPHIdealGas::allocate() {
   memory->create(cutsq, n + 1, n + 1, "pair:cutsq");
 
   memory->create(cut, n + 1, n + 1, "pair:cut");
+  memory->create(soundspeed, n + 1, "pair:soundspeed");
   memory->create(viscosity, n + 1, n + 1, "pair:viscosity");
 }
 
@@ -214,9 +224,13 @@ void PairSPHIdealGas::coeff(int narg, char **arg) {
 
   double viscosity_one = force->numeric(FLERR,arg[2]);
   double cut_one = force->numeric(FLERR,arg[3]);
+  double rho0_one = force->numeric(FLERR,arg[2]);
+  double soundspeed_one = force->numeric(FLERR,arg[3]);
 
   int count = 0;
   for (int i = ilo; i <= ihi; i++) {
+    rho0[i] = rho0_one;
+    soundspeed[i] = soundspeed_one;
     for (int j = MAX(jlo,i); j <= jhi; j++) {
       viscosity[i][j] = viscosity_one;
       //printf("setting cut[%d][%d] = %f\n", i, j, cut_one);

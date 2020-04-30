@@ -163,8 +163,8 @@ void PairSPHTaitwaterMorris::compute(int eflag, int vflag) {
         // Morris Viscosity (Morris, 1996)
           double Ti = e[i]/cv[i];
           double Tj = e[j]/cv[j];
-          nu[i] = 0.00183*exp(1879.9/Ti);
-          nu[j] = 0.00183*exp(1879.9/Tj);
+          nu[i] = 0.00000183*exp(1879.9/Ti)/rho[i];
+          nu[j] = 0.00000183*exp(1879.9/Tj)/rho[j];
           double alphai =  8* nu[i] /(h*soundspeed[itype]);
           double alphaj =  8* nu[j] /(h*soundspeed[jtype]);
           fvisc = 2 * ((alphai + alphaj) /2) / (rho[i] * rho[j]);
