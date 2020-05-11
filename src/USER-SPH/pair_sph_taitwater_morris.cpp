@@ -163,8 +163,9 @@ void PairSPHTaitwaterMorris::compute(int eflag, int vflag) {
         // Morris Viscosity (Morris, 1996)
           double Ti = e[i]/cv[i];
           double Tj = e[j]/cv[j];
-          nu[i] = 0.0000183*exp(1879.9/Ti)/rho[i];
-          nu[j] = 0.0000183*exp(1879.9/Tj)/rho[j];
+       // parser viscosity-relationship
+            nu[i] = formula.getOutput(0, Ti)/rho[i]; //0.0000183*exp(1879.9/Ti)/rho[i];
+            nu[j] = formula.getOutput(0, Tj)/rho[j];/ /0.0000183*exp(1879.9/Tj)/rho[j];
           double alphai =  8* nu[i] /(h*soundspeed[itype]);
           double alphaj =  8* nu[j] /(h*soundspeed[jtype]);
           fvisc = 2 * ((alphai + alphaj) /2) / (rho[i] * rho[j]);
@@ -231,9 +232,48 @@ void PairSPHTaitwaterMorris::allocate() {
  ------------------------------------------------------------------------- */
 
 void PairSPHTaitwaterMorris::settings(int narg, char **/*arg*/) {
-  if (narg != 0)
-    error->all(FLERR,
-        "Illegal number of arguments for pair_style sph/taitwater/morris");
+  string input = "(";
+  if(narg == 0){
+	  // Default formula inserted here
+	  input += "5+2";
+  }else{
+	// Given sph_taitwater has no commands of its own, all inputs will be assumed
+	// to be given to the lexer, thus all inputs concat into one string input.
+    for(int i = 0 ; i < narg ; i++){
+      string s(arg[i]);
+      input += s;
+    }
+  }
+  input += ")";
+  // Debug print 
+  printf("Input: %s\n", input.c_str());
+  
+  // Tokenize input
+  Formula form;
+  try{
+    form = tokenizer(input);
+  }catch(unbalancedBracketsException& e){
+    error->all(FLERR, e.error());
+    return;
+  }catch(tooManyRightBracketException& e){
+    error->all(FLERR, e.error());
+    return;
+  }catch(pairedOperatorOperandsException& e){
+    error->all(FLERR, e.error());
+    return;
+  }catch(noOperatorsException& e){
+    error->all(FLERR, e.error());
+    return;
+  }
+  
+  // Token to tree-formula.
+  Tree t(form);
+  formula = t;
+ 
+// OLD CODE!
+//  if (narg != 0)
+//    error->all(FLERR,
+//        "Illegal number of arguments for pair_style sph/taitwater/morris");
 }
 
 /* ----------------------------------------------------------------------
