@@ -88,7 +88,7 @@ void FixMesoFullStationary::initial_integrate(int /*vflag*/) {
       e[i] +=0; // half-step update of particle internal energy
       rho[i] += 0; // ... and density
       
-      nu[i] = 0.00183*exp(1879.9/(e[i]/cv[i]));
+      //nu[i] = 0.00183*exp(1879.9/(e[i]/cv[i]));
     }
   }
 }
