@@ -18,3 +18,29 @@ The person who created this package is Georg Ganzenmuller at the
 Fraunhofer-Institute for High-Speed Dynamics, Ernst Mach Institute in
 Germany (georg.ganzenmueller at emi.fhg.de).  Contact him directly if
 you have questions.
+
+Lexer-Parser information
+
+The lexer has been implemented into the following pair styles: 
+- pair_sph_taitwater_morris
+- pair_sph_taitwater
+- pair_sph_idealgas
+
+To use the lexer, you simply have to append your formula to the declaration of the pair_style in the input script. For example, if implementing the lexer for taitwater, we do the following:
+
+pair_style         hybrid/overlay sph/rhosum 1 sph/taitwater 1.00013797274/T^0.00000183
+
+This will be read by the lexer.
+
+NOTE:
+
+DO NOT USE BRACKETS IN THE FORMULA. At this point in time, any brackets appended to your formula will crash the lexer.
+This formula you are modifying will be influencing the μ term which will influence the viscosity relationship in the force calculation.
+Any formula provided will be put to an exponant, therefore you do not have to add this to the formula. This means that you will have to modify your formulas to fit this nature, eg:
+
+A+e^(B/T) which is the 2-term viscosity relationship must be modified to e^(B^A/T^A), in which we only write the section in the brackets.
+
+For developers.
+
+This lexer is an implementation of the shunting-yard algorithm. The lexer can be found in LexerUtils, the parser can be found in Tree.cpp. Any modifications are appreciated!
+
