@@ -11,34 +11,30 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#ifdef PAIR_CLASS
+#ifdef COMPUTE_CLASS
 
-PairStyle(sph/idealgas,PairSPHIdealGas)
+ComputeStyle(meso/nu/atom,ComputeMesoNuAtom)
 
 #else
 
-#ifndef LMP_PAIR_IDEALGAS_H
-#define LMP_PAIR_IDEALGAS_H
+#ifndef LMP_COMPUTE_MESO_NU_ATOM_H
+#define LMP_COMPUTE_MESO_NU_ATOM_H
 
-#include "pair.h"
+#include "compute.h"
 
 namespace LAMMPS_NS {
 
-class PairSPHIdealGas : public Pair {
+class ComputeMesoNuAtom : public Compute {
  public:
-  PairSPHIdealGas(class LAMMPS *);
-  virtual ~PairSPHIdealGas();
-  virtual void compute(int, int);
-  void settings(int, char **);
-  void coeff(int, char **);
-  virtual double init_one(int, int);
-  virtual double single(int, int, int, int, double, double, double, double &);
+  ComputeMesoNuAtom(class LAMMPS *, int, char **);
+  ~ComputeMesoNuAtom();
+  void init();
+  void compute_peratom();
+  double memory_usage();
 
- protected:
-  double **cut,**viscosity;
-  double *rho0, *soundspeed;
-
-  void allocate();
+ private:
+  int nmax;
+  double *nuVector;
 };
 
 }

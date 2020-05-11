@@ -37,6 +37,7 @@ class PairSPHTaitwater : public Pair {
  protected:
   double *rho0, *soundspeed, *B;
   double **cut,**viscosity;
+  double *nu;
   int first;
   Tree formula;
 

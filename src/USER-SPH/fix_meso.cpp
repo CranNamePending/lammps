@@ -86,6 +86,8 @@ void FixMeso::initial_integrate(int /*vflag*/) {
   double *drho = atom->drho;
   double *e = atom->e;
   double *de = atom->de;
+  double *cv = atom->cv;
+  double *nu = atom->nu;
   double *mass = atom->mass;
   double *rmass = atom->rmass;
   int rmass_flag = atom->rmass_flag;
@@ -138,6 +140,8 @@ void FixMeso::final_integrate() {
   double *de = atom->de;
   double *rho = atom->rho;
   double *drho = atom->drho;
+  double *cv = atom->cv;
+  double *nu = atom->nu;
   int *type = atom->type;
   int *mask = atom->mask;
   double *mass = atom->mass;
