@@ -235,7 +235,7 @@ void PairSPHTaitwaterMorris::settings(int narg, char **/*arg*/) {
   string input = "(";
   if(narg == 0){
 	  // Default formula inserted here
-	  input += "5+2";
+	  input += "1.00013797274/T^0.0000183";
   }else{
 	// Given sph_taitwater has no commands of its own, all inputs will be assumed
 	// to be given to the lexer, thus all inputs concat into one string input.
@@ -245,8 +245,6 @@ void PairSPHTaitwaterMorris::settings(int narg, char **/*arg*/) {
     }
   }
   input += ")";
-  // Debug print 
-  printf("Input: %s\n", input.c_str());
   
   // Tokenize input
   Formula form;
