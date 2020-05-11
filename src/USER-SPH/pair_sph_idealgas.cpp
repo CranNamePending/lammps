@@ -134,8 +134,9 @@ void PairSPHIdealGas::compute(int eflag, int vflag) {
 
           double Ti = e[i]/cv[i];
           double Tj = e[j]/cv[j];
-          nu[i] = 0.0000183*exp(1879.9/Ti)/rho[i]; //Change the coefficients according to the gas that we want to study 
-          nu[j] = 0.0000183*exp(1879.9/Tj)/rho[j]; //Current values are for water
+	    // Parser computation, x value is not used!
+          nu[i] = formula.getOutput(0, Ti)/rho[i]; //0.0000183*exp(1879.9/Ti)/rho[i]; //Change the coefficients according to the gas that we want to study 
+          nu[j] = formula.getOutput(0, Tj)/rho[j]; //0.0000183*exp(1879.9/Tj)/rho[j]; //Current values are for water
           double alphai =  8* nu[i] /(h*soundspeed[itype]);
           double alphaj =  8* nu[j] /(h*soundspeed[jtype]);
           fvisc = 2 * ((alphai + alphaj) /2) / (rho[i] * rho[j]);
@@ -203,9 +204,46 @@ void PairSPHIdealGas::allocate() {
  ------------------------------------------------------------------------- */
 
 void PairSPHIdealGas::settings(int narg, char **/*arg*/) {
-  if (narg != 0)
-    error->all(FLERR,
-        "Illegal number of arguments for pair_style sph/idealgas");
+  string input = "(";
+  if(narg == 0){
+	  // Default formula inserted here 0.0000183*exp(1879.9/Ti)
+	  input += "1.00013797274/T^0.0000183";
+  }else{
+	// Given sph_taitwater has no commands of its own, all inputs will be assumed
+	// to be given to the lexer, thus all inputs concat into one string input.
+    for(int i = 0 ; i < narg ; i++){
+      string s(arg[i]);
+      input += s;
+    }
+  }
+  input += ")";
+  
+  // Tokenize input
+  Formula form;
+  try{
+    form = tokenizer(input);
+  }catch(unbalancedBracketsException& e){
+    error->all(FLERR, e.error());
+    return;
+  }catch(tooManyRightBracketException& e){
+    error->all(FLERR, e.error());
+    return;
+  }catch(pairedOperatorOperandsException& e){
+    error->all(FLERR, e.error());
+    return;
+  }catch(noOperatorsException& e){
+    error->all(FLERR, e.error());
+    return;
+  }
+  
+  // Token to tree-formula.
+  Tree t(form);
+  formula = t;
+ 
+ // Old code
+ // if (narg != 0)
+ //   error->all(FLERR,
+ //       "Illegal number of arguments for pair_style sph/idealgas");
 }
 
 /* ----------------------------------------------------------------------
