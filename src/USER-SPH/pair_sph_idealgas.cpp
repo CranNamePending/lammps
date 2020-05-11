@@ -134,10 +134,10 @@ void PairSPHIdealGas::compute(int eflag, int vflag) {
 
           double Ti = e[i]/cv[i];
           double Tj = e[j]/cv[j];
-          nu[i] = 0.0000183*exp(1879.9/Ti);
-          nu[j] = 0.0000183*exp(1879.9/Tj);
-          double alphai =  8* nu[i] /(h*soundspeed[itype]*rho[i]);
-          double alphaj =  8* nu[j] /(h*soundspeed[jtype]*rho[j]);
+          nu[i] = 0.0000183*exp(1879.9/Ti)/rho[i]; //Change the coefficients according to the gas that we want to study 
+          nu[j] = 0.0000183*exp(1879.9/Tj)/rho[j]; //Current values are for water
+          double alphai =  8* nu[i] /(h*soundspeed[itype]);
+          double alphaj =  8* nu[j] /(h*soundspeed[jtype]);
           fvisc = 2 * ((alphai + alphaj) /2) / (rho[i] * rho[j]);
         } else {
           fvisc = 0.;
