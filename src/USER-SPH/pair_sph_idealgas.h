@@ -21,6 +21,7 @@ PairStyle(sph/idealgas,PairSPHIdealGas)
 #define LMP_PAIR_IDEALGAS_H
 
 #include "pair.h"
+#include "tree.h"
 
 namespace LAMMPS_NS {
 
@@ -37,6 +38,7 @@ class PairSPHIdealGas : public Pair {
  protected:
   double **cut,**viscosity;
   double *rho0, *soundspeed;
+  Tree formula;
 
   void allocate();
 };
